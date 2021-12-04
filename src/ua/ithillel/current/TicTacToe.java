@@ -1,48 +1,46 @@
 package ua.ithillel.current;
 
+import java.util.Scanner;
+
 public class TicTacToe {
 
-    private static final char EMPTY_SYMBOL = '-';
-    private static final int FIELD_SIZE = 3;
-
-    private final char[][] field = {
-            {EMPTY_SYMBOL, EMPTY_SYMBOL, EMPTY_SYMBOL},
-            {EMPTY_SYMBOL, EMPTY_SYMBOL, EMPTY_SYMBOL},
-            {EMPTY_SYMBOL, EMPTY_SYMBOL, EMPTY_SYMBOL},
-    };
-
     public void start() {
-        CoordinateFinder playerMoveAction = new PlayerCoordinateFinder();
-        CoordinateFinder aiMoveAction = new AICoordinateFinder();
-
-        drawField();
-
-        doMove(playerMoveAction);
-        doMove(aiMoveAction);
-
-        drawField();
-    }
-
-    private void doMove(CoordinateFinder coordinateFinder) {
-        MoveResult moveResult;
-        Coordinate coordinate;
-
+        Field field = new Field();
+        Move playerMoveAction = new PlayerMove(field);
+        Move aiMoveAction = new AIMove(field);
+        field.initField();
         do {
-            moveResult = coordinateFinder.findCoordinate();
-            coordinate = moveResult.getCoordinate();
-        } while (field[coordinate.getVertical()][coordinate.getHorizontal()] != EMPTY_SYMBOL);
-
-        field[coordinate.getVertical()][coordinate.getHorizontal()] = moveResult.getSymbol();
-    }
-
-    private void drawField() {
-        for (int i = 0; i < field.length; i++) {
-            for (int j = 0; j < field.length; j++) {
-                System.out.print(field[i][j]);
-                System.out.print(" ");
+            field.printField();
+            if (field.checkWinner(field.doMove(playerMoveAction))) {
+                System.out.println("You win!");
+                break;
             }
-            System.out.println();
-        }
+            if (field.checkWinner(field.doMove(aiMoveAction))) {
+                System.out.println("Ai win!");
+                break;
+            }
+            if (field.isFreeField()) {
+                System.out.println("Draw");
+                break;
+            }
+        } while (true);
+        field.printField();
+        ticTacToeMenu();
     }
 
+    private void ticTacToeMenu() {
+        System.out.println("Do you want to play again?");
+        System.out.println("Choice: 1.Play again, q.Exit");
+        String choice;
+        Scanner scan = new Scanner(System.in);
+        do {
+            choice = scan.nextLine();
+            switch (choice) {
+                case "1":
+                    start();
+                case "2":
+                    choice = "q";
+            }
+        } while (!choice.equals("q"));
+    }
 }
